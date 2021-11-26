@@ -69,6 +69,7 @@ static void MX_SPI1_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	t_SSD1351_InitStruct screen1;
 
   /* USER CODE END 1 */
 
@@ -94,11 +95,21 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
+  // Init SSD1351_InitStruct
+  screen1.dcPin.pin = DC_Pin;
+  screen1.dcPin.port = DC_GPIO_Port;
+
+  screen1.resPin.pin = RES_Pin;
+  screen1.resPin.port = RES_GPIO_Port;
+
+  screen1.spiHander.handler = &hspi1;
+  screen1.spiHander.nss.pin = GPIO_PIN_4;
+  screen1.spiHander.nss.port = GPIOA;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  SSD1351_Init(&hspi1, GPIOA, GPIO_PIN_1);
+  SSD1351_Init(&screen1);
 
   while (1)
   {
@@ -255,7 +266,17 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, DC_Pin|RES_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : DC_Pin RES_Pin */
+  GPIO_InitStruct.Pin = DC_Pin|RES_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LD3_Pin */
   GPIO_InitStruct.Pin = LD3_Pin;
